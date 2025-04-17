@@ -31,16 +31,6 @@ resource "helm_release" "jenkins" {
   timeout          = 600
 
   set {
-    name  = "controller.admin.username"
-    value = "admin"
-  }
-
-  set {
-    name  = "controller.admin.password"
-    value = "admin"
-  }
-
-  set {
     name  = "persistence.enabled"
     value = "true"
   }
