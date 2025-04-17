@@ -1,0 +1,72 @@
+pipeline {
+  agent {
+    kubernetes {
+      defaultContainer 'jnlp'
+      yaml """
+apiVersion: v1
+kind: Pod
+spec:
+  containers:
+  - name: kaniko
+    image: gcr.io/kaniko-project/executor:debug
+    command: ["/busybox/sh"]
+    args: ["-c", "tail -f /dev/null"]
+    volumeMounts:
+      - name: kaniko-secret
+        mountPath: /kaniko/.docker
+      - name: workspace
+        mountPath: /workspace
+  volumes:
+    - name: kaniko-secret
+      secret:
+        secretName: kaniko-secret
+        items:
+          - key: .dockerconfigjson
+            path: config.json
+    - name: workspace
+      emptyDir: {}
+"""
+    }
+  }
+
+  environment {
+    REGISTRY = "docker.io/googlosoap"
+    IMAGE_NAME = "website"
+    IMAGE_TAG = "${BUILD_NUMBER}"
+    REPO_URL = "https://github.com/aleksandrtk/web.git"
+  }
+
+  stages {
+    stage('Checkout Application Code') {
+      steps {
+        container('kaniko') {
+          git branch: 'main', url: "${REPO_URL}"
+          sh 'mkdir -p /workspace'
+          sh 'cp -r * /workspace/'
+        }
+      }
+    }
+
+    stage('Build and Push with Kaniko') {
+      steps {
+        container('kaniko') {
+          sh """
+            ls -la
+            /kaniko/executor \
+              --dockerfile=Dockerfile \
+              --destination=${REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}
+          """
+        }
+      }
+    }
+  }
+
+  post {
+    success {
+      echo 'Docker-образ успешно собран и отправлен в реестр!'
+    }
+    failure {
+      echo 'Ошибка при сборке или отправке Docker-образа.'
+    }
+  }
+}

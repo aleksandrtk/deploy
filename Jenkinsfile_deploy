@@ -1,0 +1,42 @@
+pipeline {
+  agent {
+    kubernetes {
+      defaultContainer 'jnlp'
+      yaml """
+apiVersion: v1
+kind: Pod
+spec:
+  containers:
+  - name: kubectl
+    image: bitnami/kubectl:latest
+    command: ["/bin/sh"]
+    args: ["-c", "tail -f /dev/null"]
+"""
+    }
+  }
+
+  stages {
+    stage('Checkout Infrastructure Code') {
+      steps {
+          git branch: 'main', url: 'https://github.com/aleksandrtk/web.git'
+        }
+    }
+
+    stage('Sync with ArgoCD') {
+      steps {
+        container('kubectl') {
+          sh 'kubectl apply -f argo/argocd-application.yaml'
+        }
+      }
+    }
+  }
+
+  post {
+    success {
+      echo 'Synced with ArgoCD!'
+    }
+    failure {
+      echo 'Error deploy'
+    }
+  }
+}
