@@ -26,7 +26,7 @@ metadata:
   name: argocd
   namespace: argocd  
   annotations:
-    argocd.argoproj.io/sync-options: Validate=false
+#    argocd.argoproj.io/sync-options: Validate=false
     nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
   ingressClassName: nginx
