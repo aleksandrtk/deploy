@@ -18,7 +18,7 @@ spec:
   stages {
     stage('Checkout Infrastructure Code') {
       steps {
-          git branch: 'main', url: 'https://github.com/aleksandrtk/web.git'
+          git branch: 'main', url: 'https://github.com/aleksandrtk/deploy.git'
         }
     }
 
