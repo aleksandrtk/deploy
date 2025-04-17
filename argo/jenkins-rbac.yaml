@@ -1,0 +1,32 @@
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: jenkins-cluster-role
+rules:
+  # Доступ к основным ресурсам в namespace jenkins
+  - apiGroups: [""]
+    resources: ["pods", "deployments", "services", "secrets", "serviceaccounts"]
+    verbs: ["get", "list", "create", "update", "delete", "patch"]
+  # Доступ к ресурсам в argocd namespace
+  - apiGroups: [""]
+    resources: ["serviceaccounts"]
+    verbs: ["get", "list"]
+  - apiGroups: ["argoproj.io"]
+    resources: ["applications"]
+    verbs: ["get", "list", "create", "update", "delete", "patch"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: jenkins-cluster-rolebinding
+subjects:
+  - kind: ServiceAccount
+    name: jenkins-sa
+    namespace: jenkins
+roleRef:
+  kind: ClusterRole
+  name: jenkins-cluster-role
+  apiGroup: rbac.authorization.k8s.io
+
