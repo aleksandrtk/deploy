@@ -13,15 +13,7 @@ provider "helm" {
   }
 }
 
-resource "null_resource" "cleanup_jenkins" {
-  provisioner "local-exec" {
-    command = "kubectl patch namespace jenkins -p '{\"metadata\":{\"finalizers\":[]}}' --type=merge || true"
-  }
-}
-
-resource "helm_release" "jenkins" {
-  depends_on = [null_resource.cleanup_jenkins]
-  
+resource "helm_release" "jenkins" {  
   name             = "jenkins"
   chart            = "jenkins"
   repository       = "https://charts.jenkins.io"
@@ -33,16 +25,6 @@ resource "helm_release" "jenkins" {
   set {
     name  = "persistence.enabled"
     value = "true"
-  }
-
-  set {
-    name  = "controller.image"
-    value = "jenkins/jenkins:lts-jdk17"
-  }
-
-  set {
-    name  = "controller.imagePullPolicy"
-    value = "IfNotPresent"
   }
 
   set {
