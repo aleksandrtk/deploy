@@ -17,6 +17,6 @@ spec:
     spec:
       containers:
       - name: website
-        image: docker.io/googlosoap/website:16
+        image: docker.io/googlosoap/website:17
         ports:
         - containerPort: 80
