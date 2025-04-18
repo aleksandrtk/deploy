@@ -11,16 +11,15 @@ metadata:
 rules:
   # Доступ к основным ресурсам в namespace jenkins
   - apiGroups: [""]
-    resources: ["pods", "deployments", "services", "secrets", "serviceaccounts"]
+    resources: ["pods", "deployments", "services", "secrets", "serviceaccounts", "configmaps"]
     verbs: ["get", "list", "create", "update", "delete", "patch"]
   # Доступ к ресурсам в argocd namespace
   - apiGroups: [""]
-    resources: ["serviceaccounts"]
+    resources: ["serviceaccounts", "configmaps"]
     verbs: ["get", "list"]
   - apiGroups: ["argoproj.io"]
     resources: ["applications"]
     verbs: ["get", "list", "create", "update", "delete", "patch"]
-
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
@@ -34,4 +33,3 @@ roleRef:
   kind: ClusterRole
   name: jenkins-cluster-role
   apiGroup: rbac.authorization.k8s.io
-
