@@ -9,7 +9,9 @@ terraform {
 
 provider "helm" {
   kubernetes {
-    config_path = "/etc/rancher/k3s/k3s.yaml"  # Default k3s kubeconfig location
+    host                   = "https://kubernetes.default.svc"
+    cluster_ca_certificate = file("/var/run/secrets/kubernetes.io/serviceaccount/ca.crt")
+    token                  = file("/var/run/secrets/kubernetes.io/serviceaccount/token")
   }
 }
 
