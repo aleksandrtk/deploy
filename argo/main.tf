@@ -154,6 +154,7 @@ resource "kubernetes_secret" "vault_token" {
 
 # --- ClusterSecretStore для Vault ---
 resource "kubernetes_manifest" "vault_cluster_secret_store" {
+  depends_on = [helm_release.eso]
   manifest = {
     "apiVersion" = "external-secrets.io/v1beta1"
     "kind"       = "ClusterSecretStore"
