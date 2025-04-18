@@ -6,11 +6,19 @@ pipeline {
 apiVersion: v1
 kind: Pod
 spec:
+  serviceAccountName: jenkins-sa
   containers:
-  - name: kubectl
-    image: bitnami/kubectl:latest
+  - name: terraform
+    image: hashicorp/terraform:1.5
     command: ["/bin/sh"]
     args: ["-c", "tail -f /dev/null"]
+  - name: kubectl
+    image: bitnami/kubectl:latest
+    command:
+      - cat
+    tty: true
+    securityContext:
+      runAsUser: 1000
 """
     }
   }
@@ -18,8 +26,52 @@ spec:
   stages {
     stage('Checkout Infrastructure Code') {
       steps {
-          git branch: 'main', url: 'https://github.com/aleksandrtk/deploy.git'
+        git branch: 'main', url: 'https://github.com/aleksandrtk/deploy.git'
+      }
+    }
+
+    stage('Terraform Import') {
+      steps {
+        container('terraform') {
+          dir('argo') {
+            sh '''
+              terraform init
+              terraform state show helm_release.jenkins || terraform import helm_release.jenkins jenkins/jenkins || true
+              terraform state show helm_release.argocd || terraform import helm_release.argocd argocd/argocd || true
+            '''
+          }
         }
+      }
+    }
+
+    stage('Terraform Init') {
+      steps {
+        container('terraform') {
+          dir('argo') {
+            sh 'terraform init'
+          }
+        }
+      }
+    }
+
+    stage('Terraform Plan') {
+      steps {
+        container('terraform') {
+          dir('argo') {
+            sh 'terraform plan'
+          }
+        }
+      }
+    }
+
+    stage('Terraform Apply') {
+      steps {
+        container('terraform') {
+          dir('argo') {
+            sh 'terraform apply -auto-approve'
+          }
+        }
+      }
     }
 
     stage('Sync with ArgoCD') {
