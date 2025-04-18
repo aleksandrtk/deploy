@@ -11,7 +11,7 @@ metadata:
 rules:
   # Доступ к основным ресурсам в namespace jenkins
   - apiGroups: [""]
-    resources: ["pods", "deployments", "services", "secrets", "serviceaccounts", "configmaps", "persistentvolumeclaims", "roles"]
+    resources: ["pods", "deployments", "services", "secrets", "serviceaccounts", "configmaps", "persistentvolumeclaims", "roles", "rolebindings"]
     verbs: ["get", "list", "create", "update", "delete", "patch"]
   # Доступ к ресурсам в argocd namespace
   - apiGroups: [""]
@@ -26,7 +26,7 @@ rules:
     verbs: ["get", "list"]
   # Доступ к clusterroles и roles
   - apiGroups: ["rbac.authorization.k8s.io"]
-    resources: ["roles", "clusterroles"]
+    resources: ["roles", "clusterroles", "rolebindings", "clusterrolebindings"]
     verbs: ["get", "list"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
