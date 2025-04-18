@@ -138,28 +138,6 @@ resource "helm_release" "eso" {
   }
 }
 
-
-resource "null_resource" "wait_for_clustersecretstore_crd" {
-  depends_on = [helm_release.eso]
-
-  provisioner "local-exec" {
-    command = <<EOT
-      echo "⏳ Waiting for ClusterSecretStore CRD to be ready..."
-      for i in {1..20}; do
-        if kubectl get crd clustersecretstores.external-secrets.io > /dev/null 2>&1; then
-          echo "✅ ClusterSecretStore CRD is ready!"
-          exit 0
-        fi
-        echo "Retrying... ($i)"
-        sleep 3
-      done
-      echo "❌ CRD not found after waiting"
-      exit 1
-    EOT
-  }
-}
-
-
 # --- Vault Token Secret для ESO ---
 resource "kubernetes_secret" "vault_token" {
   metadata {
